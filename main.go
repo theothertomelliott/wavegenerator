@@ -1,159 +1,114 @@
 package main
 
 import (
-	"math"
-	"math/rand"
 	"time"
-
-	"github.com/hajimehoshi/oto"
 )
 
 func main() {
-	const samplingRate = 44100
-	player, err := oto.NewPlayer(samplingRate, 1, 2, samplingRate/10)
+	player, err := NewPlayer(44100)
 	if err != nil {
 		panic(err)
 	}
+	defer player.Close()
 
-	testWaves(player, samplingRate, time.Second/4, 220)
-	testWaves(player, samplingRate, time.Second/4, 220*1.3)
-	testWaves(player, samplingRate, time.Second/4, 220*1.5)
-	testWaves(player, samplingRate, time.Second/4, 440)
+	var (
+		c = 220.0
+		d = c * (1 + 1.0/8.0)
+		e = c * (1 + 2.0/8.0)
+		f = c * (1 + 2.5/8.0)
+		g = c * (1 + 4.0/8.0)
+		a = c * (1 + 5.5/8.0)
+	)
 
-	player.Close()
+	pause := TriangleTone(0)
 
-}
+	player.Play(time.Second/4, TriangleTone(c))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(c))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(g))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(g))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(a))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(a))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/2, TriangleTone(g))
+	player.Play(time.Second/16, pause)
 
-func testWaves(player *oto.Player, samplingRate int, duration time.Duration, freq float64) {
+	player.Play(time.Second/4, TriangleTone(f))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(f))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(e))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(e))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(d))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(d))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/2, TriangleTone(c))
+	player.Play(time.Second/16, pause)
 
-	var wave []float64
-	wave = generateSawtooth(samplingRate, duration, 0.5, freq)
-	for _, val := range wave {
-		low, high := toBytes(val)
-		_, err := player.Write([]byte{low, high})
-		if err != nil {
-			panic(err)
-		}
-	}
-	wave = generateTriangle(samplingRate, duration, 0.5, freq)
-	for _, val := range wave {
-		low, high := toBytes(val)
-		_, err := player.Write([]byte{low, high})
-		if err != nil {
-			panic(err)
-		}
-	}
-	wave = generateSquare(samplingRate, duration, 0.5, freq)
-	for _, val := range wave {
-		low, high := toBytes(val)
-		_, err := player.Write([]byte{low, high})
-		if err != nil {
-			panic(err)
-		}
-	}
-	wave = generateSin(samplingRate, duration, 0.5, freq)
-	for _, val := range wave {
-		low, high := toBytes(val)
-		_, err := player.Write([]byte{low, high})
-		if err != nil {
-			panic(err)
-		}
-	}
-	wave = generateNoise(samplingRate, duration, 0.5, freq)
-	for _, val := range wave {
-		low, high := toBytes(val)
-		_, err := player.Write([]byte{low, high})
-		if err != nil {
-			panic(err)
-		}
-	}
-}
+	player.Play(time.Second/4, TriangleTone(g))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(g))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(f))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(f))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(e))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(e))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/2, TriangleTone(d))
+	player.Play(time.Second/16, pause)
 
-func toBytes(val float64) (byte, byte) {
-	if val < -1 {
-		val = -1
-	}
-	if val > +1 {
-		val = +1
-	}
-	valInt16 := int16(val * (1<<15 - 1))
-	low := byte(valInt16)
-	high := byte(valInt16 >> 8)
-	return low, high
-}
+	player.Play(time.Second/4, TriangleTone(g))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(g))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(f))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(f))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(e))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(e))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/2, TriangleTone(d))
+	player.Play(time.Second/16, pause)
 
-func generateSin(samplingRate int, duration time.Duration, volume float64, freq float64) []float64 {
-	count := float64(duration) / float64(time.Second) * float64(samplingRate)
+	player.Play(time.Second/4, TriangleTone(c))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(c))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(g))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(g))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(a))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(a))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/2, TriangleTone(g))
+	player.Play(time.Second/16, pause)
 
-	var buffer []float64
-	for pos := 0; pos < int(count); pos++ {
-		var a = 2 * math.Pi * freq * float64(pos) / float64(samplingRate)
-		v := math.Sin(a) * volume
-		buffer = append(buffer, v)
-	}
-	return buffer
-}
-
-func generateSquare(samplingRate int, duration time.Duration, volume float64, freq float64) []float64 {
-	count := float64(duration) / float64(time.Second) * float64(samplingRate)
-
-	var buffer []float64
-	for pos := 0; pos < int(count); pos++ {
-		var a = 2 * math.Pi * freq * float64(pos) / float64(samplingRate)
-		v := math.Sin(a)
-		if v >= 0.5 {
-			v = 1.0
-		}
-		if v > -0.5 && v < 0.5 {
-			v = 0.0
-		}
-		if v <= -0.5 {
-			v = -1.0
-		}
-		buffer = append(buffer, v*volume)
-	}
-	return buffer
-}
-
-func generateSawtooth(samplingRate int, duration time.Duration, volume float64, freq float64) []float64 {
-	count := float64(duration) / float64(time.Second) * float64(samplingRate)
-
-	var buffer []float64
-	for pos := 0; pos < int(count); pos++ {
-		v := float64(pos % int(float64(samplingRate)/freq))
-		v = v / freq
-		v = v/2 - 1
-		buffer = append(buffer, v*volume)
-	}
-	return buffer
-}
-
-func generateTriangle(samplingRate int, duration time.Duration, volume float64, freq float64) []float64 {
-	count := float64(duration) / float64(time.Second) * float64(samplingRate)
-
-	var buffer []float64
-	waveSize := int(float64(samplingRate)/freq) / 2
-	for pos := 0; pos < int(count); pos++ {
-		v := float64(pos % (waveSize))
-		v = v / freq
-		v = v/2 - 1
-
-		if int(pos/(waveSize))%2 == 1 {
-			v = 1 - v
-		}
-
-		buffer = append(buffer, v*volume)
-	}
-	return buffer
-}
-
-func generateNoise(samplingRate int, duration time.Duration, volume float64, freq float64) []float64 {
-	count := float64(duration) / float64(time.Second) * float64(samplingRate)
-
-	var buffer []float64
-	for pos := 0; pos < int(count); pos++ {
-		v := rand.Float64() - 0.5*2
-		buffer = append(buffer, v*volume)
-	}
-	return buffer
+	player.Play(time.Second/4, TriangleTone(f))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(f))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(e))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(e))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(d))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/4, TriangleTone(d))
+	player.Play(time.Second/16, pause)
+	player.Play(time.Second/2, TriangleTone(c))
+	player.Play(time.Second/16, pause)
 }
