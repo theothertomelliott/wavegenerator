@@ -1,54 +1,72 @@
 package main
 
 import (
-	"fmt"
 	"math"
 	"math/rand"
+	"time"
 
 	"github.com/hajimehoshi/oto"
 )
 
 func main() {
+	const samplingRate = 44100
 	player, err := oto.NewPlayer(samplingRate, 1, 2, samplingRate/10)
 	if err != nil {
 		panic(err)
 	}
 
-	wave := generateTriangle(samplingRate, 0.5, 440)
-	for _, val := range wave {
-		low, high := toBytes(val)
-		_, err := player.Write([]byte{low, high})
-		if err != nil {
-			panic(err)
-		}
-	}
-	wave = generateSquare(samplingRate, 0.5, 440)
-	for _, val := range wave {
-		low, high := toBytes(val)
-		_, err := player.Write([]byte{low, high})
-		if err != nil {
-			panic(err)
-		}
-	}
-	wave = generateSin(samplingRate, 0.5, 440)
-	for _, val := range wave {
-		low, high := toBytes(val)
-		_, err := player.Write([]byte{low, high})
-		if err != nil {
-			panic(err)
-		}
-	}
-	wave = generateNoise(samplingRate, 0.5, 440)
-	for _, val := range wave {
-		low, high := toBytes(val)
-		_, err := player.Write([]byte{low, high})
-		if err != nil {
-			panic(err)
-		}
-	}
+	testWaves(player, samplingRate, time.Second/4, 220)
+	testWaves(player, samplingRate, time.Second/4, 220*1.3)
+	testWaves(player, samplingRate, time.Second/4, 220*1.5)
+	testWaves(player, samplingRate, time.Second/4, 440)
 
 	player.Close()
 
+}
+
+func testWaves(player *oto.Player, samplingRate int, duration time.Duration, freq float64) {
+
+	var wave []float64
+	wave = generateSawtooth(samplingRate, duration, 0.5, freq)
+	for _, val := range wave {
+		low, high := toBytes(val)
+		_, err := player.Write([]byte{low, high})
+		if err != nil {
+			panic(err)
+		}
+	}
+	wave = generateTriangle(samplingRate, duration, 0.5, freq)
+	for _, val := range wave {
+		low, high := toBytes(val)
+		_, err := player.Write([]byte{low, high})
+		if err != nil {
+			panic(err)
+		}
+	}
+	wave = generateSquare(samplingRate, duration, 0.5, freq)
+	for _, val := range wave {
+		low, high := toBytes(val)
+		_, err := player.Write([]byte{low, high})
+		if err != nil {
+			panic(err)
+		}
+	}
+	wave = generateSin(samplingRate, duration, 0.5, freq)
+	for _, val := range wave {
+		low, high := toBytes(val)
+		_, err := player.Write([]byte{low, high})
+		if err != nil {
+			panic(err)
+		}
+	}
+	wave = generateNoise(samplingRate, duration, 0.5, freq)
+	for _, val := range wave {
+		low, high := toBytes(val)
+		_, err := player.Write([]byte{low, high})
+		if err != nil {
+			panic(err)
+		}
+	}
 }
 
 func toBytes(val float64) (byte, byte) {
@@ -64,22 +82,24 @@ func toBytes(val float64) (byte, byte) {
 	return low, high
 }
 
-const samplingRate = 44100
+func generateSin(samplingRate int, duration time.Duration, volume float64, freq float64) []float64 {
+	count := float64(duration) / float64(time.Second) * float64(samplingRate)
 
-func generateSin(count int, volume float64, freq float64) []float64 {
 	var buffer []float64
-	for pos := 0; pos < count; pos++ {
-		var a = 2 * math.Pi * freq * float64(pos) / samplingRate
+	for pos := 0; pos < int(count); pos++ {
+		var a = 2 * math.Pi * freq * float64(pos) / float64(samplingRate)
 		v := math.Sin(a) * volume
 		buffer = append(buffer, v)
 	}
 	return buffer
 }
 
-func generateSquare(count int, volume float64, freq float64) []float64 {
+func generateSquare(samplingRate int, duration time.Duration, volume float64, freq float64) []float64 {
+	count := float64(duration) / float64(time.Second) * float64(samplingRate)
+
 	var buffer []float64
-	for pos := 0; pos < count; pos++ {
-		var a = 2 * math.Pi * freq * float64(pos) / samplingRate
+	for pos := 0; pos < int(count); pos++ {
+		var a = 2 * math.Pi * freq * float64(pos) / float64(samplingRate)
 		v := math.Sin(a)
 		if v >= 0.5 {
 			v = 1.0
@@ -95,27 +115,43 @@ func generateSquare(count int, volume float64, freq float64) []float64 {
 	return buffer
 }
 
-func generateTriangle(count int, volume float64, freq float64) []float64 {
-	var buffer []float64
-	for pos := 0; pos < count; pos++ {
-		p := freq / 8
-		a := float64(pos%int(2*p)) - p
-		v := (2 / p) * (p - math.Abs(a))
-		v = v - 1
+func generateSawtooth(samplingRate int, duration time.Duration, volume float64, freq float64) []float64 {
+	count := float64(duration) / float64(time.Second) * float64(samplingRate)
 
-		if pos <= 440 {
-			fmt.Printf("%.2f ", v)
+	var buffer []float64
+	for pos := 0; pos < int(count); pos++ {
+		v := float64(pos % int(float64(samplingRate)/freq))
+		v = v / freq
+		v = v/2 - 1
+		buffer = append(buffer, v*volume)
+	}
+	return buffer
+}
+
+func generateTriangle(samplingRate int, duration time.Duration, volume float64, freq float64) []float64 {
+	count := float64(duration) / float64(time.Second) * float64(samplingRate)
+
+	var buffer []float64
+	waveSize := int(float64(samplingRate)/freq) / 2
+	for pos := 0; pos < int(count); pos++ {
+		v := float64(pos % (waveSize))
+		v = v / freq
+		v = v/2 - 1
+
+		if int(pos/(waveSize))%2 == 1 {
+			v = 1 - v
 		}
 
 		buffer = append(buffer, v*volume)
 	}
-	fmt.Println()
 	return buffer
 }
 
-func generateNoise(count int, volume float64, freq float64) []float64 {
+func generateNoise(samplingRate int, duration time.Duration, volume float64, freq float64) []float64 {
+	count := float64(duration) / float64(time.Second) * float64(samplingRate)
+
 	var buffer []float64
-	for pos := 0; pos < count; pos++ {
+	for pos := 0; pos < int(count); pos++ {
 		v := rand.Float64() - 0.5*2
 		buffer = append(buffer, v*volume)
 	}
