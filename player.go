@@ -1,4 +1,4 @@
-package main
+package wavegenerator
 
 import (
 	"time"
@@ -24,21 +24,6 @@ func NewPlayer(samplingRate int) (*Player, error) {
 	}, nil
 }
 
-type Tone interface {
-	Frequency() float64
-	Voice() Voice
-}
-
-type TriangleTone float64
-
-func (t TriangleTone) Frequency() float64 {
-	return float64(t)
-}
-
-func (t TriangleTone) Voice() Voice {
-	return generateNoise
-}
-
 func (p *Player) Play(duration time.Duration, tones ...Tone) {
 	var wave []float64
 	for _, tone := range tones {
@@ -57,6 +42,11 @@ func (p *Player) Play(duration time.Duration, tones ...Tone) {
 		if err != nil {
 			panic(err)
 		}
+	}
+
+	// Pause to separate tones
+	for i := 0; i < p.samplingRate/16; i++ {
+		p.player.Write([]byte{0, 0})
 	}
 }
 

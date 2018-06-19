@@ -1,4 +1,4 @@
-package main
+package wavegenerator
 
 import (
 	"math"
@@ -60,11 +60,10 @@ func generateTriangle(samplingRate int, duration time.Duration, volume float64, 
 	for pos := 0; pos < int(count); pos++ {
 		v := float64(pos % (waveSize))
 		v = v / freq
-		v = v/2 - 1
-
 		if int(pos/(waveSize))%2 == 1 {
 			v = 1 - v
 		}
+		v = 2*v - 1
 
 		buffer = append(buffer, v*volume)
 	}
