@@ -14,7 +14,7 @@ func main() {
 	defer player.Close()
 
 	var (
-		c = wavegenerator.TriangleTone(220.0)
+		c = wavegenerator.TriangleTone(261.63)
 		d = c * (1 + 1.0/8.0)
 		e = c * (1 + 2.0/8.0)
 		f = c * (1 + 2.5/8.0)
