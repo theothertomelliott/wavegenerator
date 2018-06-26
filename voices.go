@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func generateSin(samplingRate int, duration time.Duration, volume float64, freq float64) []float64 {
+func Sin(samplingRate int, duration time.Duration, volume float64, freq float64) []float64 {
 	count := float64(duration) / float64(time.Second) * float64(samplingRate)
 
 	var buffer []float64
@@ -18,7 +18,7 @@ func generateSin(samplingRate int, duration time.Duration, volume float64, freq 
 	return buffer
 }
 
-func generateSquare(samplingRate int, duration time.Duration, volume float64, freq float64) []float64 {
+func Square(samplingRate int, duration time.Duration, volume float64, freq float64) []float64 {
 	count := float64(duration) / float64(time.Second) * float64(samplingRate)
 
 	var buffer []float64
@@ -39,7 +39,7 @@ func generateSquare(samplingRate int, duration time.Duration, volume float64, fr
 	return buffer
 }
 
-func generateSawtooth(samplingRate int, duration time.Duration, volume float64, freq float64) []float64 {
+func Sawtooth(samplingRate int, duration time.Duration, volume float64, freq float64) []float64 {
 	count := float64(duration) / float64(time.Second) * float64(samplingRate)
 
 	var buffer []float64
@@ -52,7 +52,7 @@ func generateSawtooth(samplingRate int, duration time.Duration, volume float64, 
 	return buffer
 }
 
-func generateTriangle(samplingRate int, duration time.Duration, volume float64, freq float64) []float64 {
+func Triangle(samplingRate int, duration time.Duration, volume float64, freq float64) []float64 {
 	count := float64(duration) / float64(time.Second) * float64(samplingRate)
 
 	var buffer []float64
@@ -70,7 +70,7 @@ func generateTriangle(samplingRate int, duration time.Duration, volume float64, 
 	return buffer
 }
 
-func generateNoise(samplingRate int, duration time.Duration, volume float64, freq float64) []float64 {
+func Noise(samplingRate int, duration time.Duration, volume float64, freq float64) []float64 {
 	count := float64(duration) / float64(time.Second) * float64(samplingRate)
 
 	var buffer []float64

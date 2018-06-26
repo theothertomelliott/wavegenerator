@@ -24,10 +24,10 @@ func NewPlayer(samplingRate int) (*Player, error) {
 	}, nil
 }
 
-func (p *Player) Play(duration time.Duration, tones ...Tone) {
+func (p *Player) Play(tones ...Tone) {
 	var wave []float64
 	for _, tone := range tones {
-		toneWave := tone.Voice()(p.samplingRate, duration, p.Volume, tone.Frequency())
+		toneWave := tone.Voice()(p.samplingRate, tone.Duration(), p.Volume, tone.Frequency())
 		for index, v := range toneWave {
 			if len(wave) <= index {
 				wave = append(wave, v)

@@ -1,6 +1,9 @@
 package wavegenerator
 
+import "time"
+
 type Tone interface {
+	Duration() time.Duration
 	Frequency() float64
 	Voice() Voice
 }
@@ -12,7 +15,7 @@ func (t TriangleTone) Frequency() float64 {
 }
 
 func (t TriangleTone) Voice() Voice {
-	return generateTriangle
+	return Triangle
 }
 
 type SquareTone float64
@@ -22,7 +25,7 @@ func (t SquareTone) Frequency() float64 {
 }
 
 func (t SquareTone) Voice() Voice {
-	return generateSquare
+	return Square
 }
 
 type SinTone float64
@@ -32,5 +35,5 @@ func (t SinTone) Frequency() float64 {
 }
 
 func (t SinTone) Voice() Voice {
-	return generateSin
+	return Sin
 }
